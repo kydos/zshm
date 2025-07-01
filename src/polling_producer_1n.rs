@@ -16,9 +16,7 @@ pub struct SharedData {
     pub data: [u8; 1024],
 }
 
-fn main() {
-    let mut  matrix:  [[i32; 10]; 10] = [[0; 10]; 10];
-    matrix[1][1] = 42; // Example usage of a matrix
+fn main() {    
     let z = zenoh::open(zenoh::Config::default())
         .wait()
         .expect("Failed to open Zenoh session");

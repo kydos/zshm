@@ -27,6 +27,14 @@ name = "await_producer_1n"
 path = "src/await_consumer_1n.rs"
 name = "await_consumer_1n"
 
+[[bin]]
+path = "src/put_shm.rs"
+name = "put_shm"
+
+[[bin]]
+path = "src/sub_shm.rs"
+name = "sub_shm"
+
 [dependencies]
 zenoh = { git = "https://github.com/ZettaScaleLabs/zenoh.git", branch = "polish_shm_2", features = ["unstable", "shared-memory"] }
 clap = "4.2.0"
