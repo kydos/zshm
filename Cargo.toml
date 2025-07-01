@@ -1,0 +1,38 @@
+[package]
+name = "zshm"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+path = "src/polling_producer.rs"
+name = "polling_producer"
+
+[[bin]]
+path = "src/polling_consumer.rs"
+name = "polling_consumer"
+
+[[bin]]
+path = "src/polling_producer_1n.rs"
+name = "polling_producer_1n"
+
+[[bin]]
+path = "src/polling_consumer_1n.rs"
+name = "polling_consumer_1n"
+
+[[bin]]
+path = "src/await_producer_1n.rs"
+name = "await_producer_1n"
+
+[[bin]]
+path = "src/await_consumer_1n.rs"
+name = "await_consumer_1n"
+
+[dependencies]
+zenoh = { git = "https://github.com/ZettaScaleLabs/zenoh.git", branch = "polish_shm_2", features = ["unstable", "shared-memory"] }
+clap = "4.2.0"
+rand = "0.9.1"
+ctrlc = "3.4"
+log = "0.4"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+linux-futex = "1.0.0"
