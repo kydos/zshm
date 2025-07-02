@@ -13,7 +13,7 @@ fn main() {
 
     let msg = "Hello from Zenoh's Shared Memory!";
     let mut buf = provider.alloc(msg.len()).wait().unwrap();
-    buf.as_mut()[..msg.len()].copy_from_slice(msg.as_bytes());
+    buf[..msg.len()].copy_from_slice(msg.as_bytes());
 
     // Make the buf immutable so that we can (shallow) clone it.
     let data: ZShm = buf.into();
