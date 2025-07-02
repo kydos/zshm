@@ -11,10 +11,10 @@ fn main() {
     while let Ok(s) = sub.recv() {
         let buf = s.payload();
         
-        let is_shm = if buf.as_shm().is_none() { false } else { true };            
+        let is_shm = buf.as_shm().is_some();            
 
         buf.try_to_string()
-            .map(|s| println!("Received (SHM: {}): {}",is_shm, s))
+            .map(|s| println!("Received (SHM: {is_shm}): {s}"))
             .unwrap_or_else(|_| println!("Received non-string payload"));                       
     }
 }
