@@ -36,7 +36,7 @@ path = "src/sub_shm.rs"
 name = "sub_shm"
 
 [dependencies]
-zenoh = { git = "https://github.com/ZettaScaleLabs/zenoh.git", branch = "polish_shm_2", features = ["unstable", "shared-memory"] }
+zenoh = { git = "https://github.com/ZettaScaleLabs/zenoh.git", branch = "shm_typed_api", features = ["unstable", "shared-memory"] }
 clap = "4.2.0"
 rand = "0.9.1"
 ctrlc = "3.4"
