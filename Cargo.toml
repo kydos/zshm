@@ -37,7 +37,6 @@ name = "sub_shm"
 
 [dependencies]
 zenoh = { git = "https://github.com/ZettaScaleLabs/zenoh.git", branch = "shm_typed_api", features = ["unstable", "shared-memory"] }
-clap = "4.2.0"
 rand = "0.9.1"
 ctrlc = "3.4"
 log = "0.4"
