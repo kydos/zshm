@@ -25,7 +25,7 @@ mod platform {
     pub(crate) fn main() {
         let typed_layout = BuildLayout::for_type::<SharedData>();
 
-        let shm_provider = ShmProviderBuilder::default_backend(&typed_layout)
+        let shm_provider = ShmProviderBuilder::default_backend(typed_layout.layout())
             .wait()
             .unwrap();
 
