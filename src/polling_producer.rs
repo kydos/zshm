@@ -26,6 +26,8 @@ fn main() {
     // allocate typed SHM buffer
     let mut buf = shm_provider.alloc(typed_layout).wait().unwrap();
 
+    buf.data[0] = 42;
+
     // initialize data
     buf.as_mut()
         .len
@@ -33,7 +35,8 @@ fn main() {
 
     // change the morph of buf to be able to make it's shallow copies
     let mut buf: Typed<_, ZShm> = buf.into();
-
+    buf.len.store(0, std::sync::atomic::Ordering::Release);
+    
     // shallow copy `buf` to move it in responder thread
     let buf_in_thread = buf.clone();
     let tid = std::thread::spawn(move || {
