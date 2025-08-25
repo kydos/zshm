@@ -2,7 +2,7 @@ use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
 
 use rand::random;
 use zenoh::{
-    shm::{BuildLayout, ResideInShm, ShmBufUnsafeMut, ShmProviderBuilder, Typed, ZShm},
+    shm::{BuildLayout, ResideInShm, ShmBufIntoImmut, ShmBufUnsafeMut, ShmProviderBuilder},
     Wait,
 };
 
@@ -27,19 +27,16 @@ fn main() {
         .unwrap();
 
     // allocate typed SHM buffer
-    let mut buf = shm_provider.alloc(typed_layout).wait().unwrap();
+    let buf = shm_provider.alloc(typed_layout).wait().unwrap();
 
     // initialize data
-    {
-        let shared_data = buf.as_mut();
-        shared_data.len.store(0, Ordering::Release);
-        shared_data.sn.store(0, Ordering::Release);
-        shared_data.sub_count.store(0, Ordering::Release);
-        shared_data.read_count.store(0, Ordering::Release);
-    };
+    buf.len.store(0, Ordering::Release);
+    buf.sn.store(0, Ordering::Release);
+    buf.sub_count.store(0, Ordering::Release);
+    buf.read_count.store(0, Ordering::Release);
 
     // change the morph of buf to be able to make it's shallow copies
-    let mut buf: Typed<SharedData, ZShm> = buf.into();
+    let mut buf = buf.into_immut();
 
     // shallow copy to move in responder thread
     let buf_in_thread = buf.clone();
