@@ -2,14 +2,12 @@
 mod platform {
     use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize, Ordering};
 
+    use linux_futex::*;
     use rand::random;
     use zenoh::{
+        shm::{BuildLayout, ResideInShm, ShmBufIntoImmut, ShmBufUnsafeMut, ShmProviderBuilder},
         Wait,
-        shm::{AllocAlignment, ShmProviderBuilder, ZShm},
     };
-
-    use linux_futex::*;
-
     // Shared data
     #[repr(C)]
     pub struct SharedData {
@@ -21,37 +19,28 @@ mod platform {
         pub data: [u8; 1024],
     }
 
+    // #SAFETY: this is safe because SharedData is safe to be shared
+    unsafe impl ResideInShm for SharedData {}
+
     pub(crate) fn main() {
-        // get alignment for SharedData type by means of new API
-        let alignment = AllocAlignment::for_type::<SharedData>();
-        let size = std::mem::size_of::<SharedData>();
+        let typed_layout = BuildLayout::for_type::<SharedData>();
 
-        // construct provider using default_backend that now supports alignment setting
-        let shm_provider = ShmProviderBuilder::default_backend(size)
-            .with_alignment(alignment)
+        let shm_provider = ShmProviderBuilder::default_backend(typed_layout.layout())
             .wait()
             .unwrap();
 
-        let mut buf = shm_provider
-            .alloc(size)
-            .with_alignment(alignment)
-            .wait()
-            .unwrap();
+        // allocate typed SHM buffer
+        let buf = shm_provider.alloc(typed_layout).wait().unwrap();
 
-        let shared_data = unsafe {
-            let ptr = buf.as_mut_ptr() as *mut SharedData;
-            let shared_data = &mut *ptr;
+        // initialize data
+        buf.len.store(0, Ordering::Release);
+        buf.sn.store(0, Ordering::Release);
+        buf.sub_count.store(0, Ordering::Release);
+        buf.read_count.store(0, Ordering::Release);
+        buf.futex.value.store(0, Ordering::Release);
 
-            shared_data.len.store(0, Ordering::Release);
-            shared_data.sn.store(0, Ordering::Release);
-            shared_data.sub_count.store(0, Ordering::Release);
-            shared_data.read_count.store(0, Ordering::Release);
-            shared_data.futex.value.store(0, Ordering::Release);
-            shared_data
-        };
-
-        // change the morph of buf to be able to make it's copies
-        let buf: ZShm = buf.into();
+        // change the morph of buf to be able to make it's shallow copies
+        let mut buf = buf.into_immut();
 
         // shallow copy to move in producer thread
         let buf_in_thread = buf.clone();
@@ -72,6 +61,9 @@ mod platform {
                     .expect("Failed to reply to query");
             }
         });
+
+        // get mutable shared data
+        let shared_data = unsafe { buf.as_mut_unchecked() };
 
         // producer loop
         while !tid.is_finished() {

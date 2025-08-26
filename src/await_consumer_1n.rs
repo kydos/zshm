@@ -1,13 +1,12 @@
 #[cfg(target_os = "linux")]
 mod platform {
-    use std::sync::atomic::{AtomicI32, AtomicU64, AtomicUsize};
-
-    use std::sync::Arc;
-    use std::sync::atomic::{AtomicBool, Ordering};
-
-    use zenoh::Wait;
+    use std::sync::{
+        atomic::{AtomicBool, AtomicI32, AtomicU64, AtomicUsize, Ordering},
+        Arc,
+    };
 
     use linux_futex::*;
+    use zenoh::Wait;
 
     // Shared data
     #[repr(C)]
@@ -108,7 +107,7 @@ mod platform {
                             if read_count == 1 {
                                 log::debug!("{} / {} - Last read, resetting length", sn, next_sn);
                                 shared_data.futex.value.store(0, Ordering::SeqCst);
-                                shared_data.futex.wake(1); // Notify the producer that we are done consuming                            
+                                shared_data.futex.wake(1); // Notify the producer that we are done consuming
                             }
                         } else {
                             log::debug!(

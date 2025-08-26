@@ -1,7 +1,9 @@
 use std::io::Write;
 
-use zenoh::Wait;
-use zenoh::shm::{ShmProviderBuilder, ZShm};
+use zenoh::{
+    shm::{ShmProviderBuilder, ZShm},
+    Wait,
+};
 fn main() {
     let z = zenoh::open(zenoh::Config::default())
         .wait()
