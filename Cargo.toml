@@ -41,6 +41,7 @@ clap = "4.2.0"
 rand = "0.9.1"
 ctrlc = "3.4"
 log = "0.4"
+serde_json = "*"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 linux-futex = "1.0.0"

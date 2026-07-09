@@ -5,7 +5,8 @@ use zenoh::{
     Wait,
     shm::{AllocAlignment, ShmProviderBuilder, ZShm},
 };
-
+mod zconfig;
+use zconfig::ZConfig;
 // Shared data
 #[repr(C)]
 pub struct SharedData {
@@ -50,7 +51,9 @@ fn main() {
     // shallow copy to move in responder thread
     let buf_in_thread = buf.clone();
     let tid = std::thread::spawn(move || {
-        let z = zenoh::open(zenoh::Config::default())
+        let mut c = zenoh::Config::default();
+        c.listen(vec!("tcp/127.0.0.1:7447".into()));        
+        let z = zenoh::open(c)
             .wait()
             .expect("Failed to open Zenoh session");
 

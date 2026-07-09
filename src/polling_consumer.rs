@@ -8,9 +8,14 @@ pub struct SharedData {
     pub len: AtomicUsize,
     pub data: [u8; 1024],
 }
+mod zconfig;
+use zconfig::ZConfig;
 
 fn main(){
-    let z = zenoh::open(zenoh::Config::default())
+    let mut c = zenoh::Config::default();
+    c.connect(vec!("tcp/127.0.0.1:7447".into()));        
+
+    let z = zenoh::open(c)
         .wait()
         .expect("Failed to open Zenoh session");
 
@@ -49,10 +54,13 @@ fn main(){
                 }
                 else {
                     // Wait until the data is set
+                    println!("Waiting for Buffer");
                     std::thread::sleep(std::time::Duration::from_millis(100));
 
                 }
             }                                            
         }
+    } else {
+        println!("The Query did not succeed");        
     }
 }

@@ -14,6 +14,9 @@ pub struct SharedData {
     pub data: [u8; 1024],
 }
 
+mod zconfig;
+use zconfig::ZConfig;
+
 fn main(){
     // Set up Ctrl-C handler
     let running = Arc::new(AtomicBool::new(true));
@@ -24,7 +27,9 @@ fn main(){
         r.store(false, Ordering::Release);
     }).expect("Error setting Ctrl-C handler");
 
-    let z = zenoh::open(zenoh::Config::default())
+    let mut c = zenoh::Config::default();
+    c.connect(vec!("tcp/127.0.0.1:7447".into()));        
+    let z = zenoh::open(c)
         .wait()
         .expect("Failed to open Zenoh session");
 
